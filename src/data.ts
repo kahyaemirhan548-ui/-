@@ -1,11 +1,13 @@
 import { Task, RewardItem, SkinItem, Achievement, OperatorProfile } from './types';
 
-// Utility helper to format date strings
+// Utility helper to format date strings relative to today
 export const getFormattedDate = (offsetDays: number = 0): string => {
-  const baseDate = new Date('2026-07-01T00:00:00-07:00'); // Wednesday, July 1, 2026
-  const date = new Date(baseDate);
-  date.setDate(baseDate.getDate() + offsetDays);
-  return date.toISOString().split('T')[0];
+  const date = new Date();
+  date.setDate(date.getDate() + offsetDays);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 };
 
 export const INITIAL_OPERATOR: OperatorProfile = {

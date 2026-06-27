@@ -20,7 +20,8 @@ export default function TaskTimer({ task, subTaskId, onClose, onFinish }: TaskTi
   const [isCountdown, setIsCountdown] = useState(true);
   const [secondsLeft, setSecondsLeft] = useState(initialSeconds);
   const [secondsElapsed, setSecondsElapsed] = useState(0);
-  const [isPaused, setIsPaused] = useState(true);
+  const [isPaused, setIsPaused] = useState(false); // Default to false so it auto-starts ticking immediately!
+  const [isFinished, setIsFinished] = useState(false);
   
   // Audio states
   const [soundEnabled, setSoundEnabled] = useState(false);
@@ -31,6 +32,18 @@ export default function TaskTimer({ task, subTaskId, onClose, onFinish }: TaskTi
   const soundNodeRef = useRef<AudioNode | null>(null);
   const timerIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Active state refs to solve stale closures
+  const secondsElapsedRef = useRef(0);
+  const secondsLeftRef = useRef(initialSeconds);
+
+  useEffect(() => {
+    secondsElapsedRef.current = secondsElapsed;
+  }, [secondsElapsed]);
+
+  useEffect(() => {
+    secondsLeftRef.current = secondsLeft;
+  }, [secondsLeft]);
+
   // Initialize and tick
   useEffect(() => {
     if (!isPaused) {
@@ -39,13 +52,14 @@ export default function TaskTimer({ task, subTaskId, onClose, onFinish }: TaskTi
         if (isCountdown) {
           setSecondsLeft(prev => {
             if (prev <= 1) {
-              handleTimerComplete();
+              // Trigger timer completion
+              setTimeout(() => {
+                handleTimerComplete();
+              }, 10);
               return 0;
             }
             return prev - 1;
           });
-        } else {
-          setSecondsLeft(prev => prev + 1);
         }
       }, 1000);
     } else {
@@ -229,31 +243,134 @@ export default function TaskTimer({ task, subTaskId, onClose, onFinish }: TaskTi
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
+  const playAlarmSound = () => {
+    try {
+      const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+      if (!AudioContextClass) return;
+      const ctx = new AudioContextClass();
+      
+      let time = ctx.currentTime;
+      // Synthesize a classic sweet ringing alarm chime sequence
+      for (let i = 0; i < 8; i++) {
+        // Higher chime
+        const osc = ctx.createOscillator();
+        const gainNode = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(987.77, time); // B5 note
+        
+        gainNode.gain.setValueAtTime(0, time);
+        gainNode.gain.linearRampToValueAtTime(0.35, time + 0.05);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, time + 0.25);
+        
+        osc.connect(gainNode);
+        gainNode.connect(ctx.destination);
+        
+        osc.start(time);
+        osc.stop(time + 0.3);
+
+        // Harmonic lower chime
+        const osc2 = ctx.createOscillator();
+        const gainNode2 = ctx.createGain();
+        osc2.type = 'triangle';
+        osc2.frequency.setValueAtTime(1318.51, time); // E6 note
+        
+        gainNode2.gain.setValueAtTime(0, time);
+        gainNode2.gain.linearRampToValueAtTime(0.15, time + 0.05);
+        gainNode2.gain.exponentialRampToValueAtTime(0.001, time + 0.25);
+        
+        osc2.connect(gainNode2);
+        gainNode2.connect(ctx.destination);
+        
+        osc2.start(time);
+        osc2.stop(time + 0.3);
+        
+        time += 0.35; // delay before next ringing beep
+      }
+    } catch (e) {
+      console.warn("Failed to play alarm sound synthesizer:", e);
+    }
+  };
+
   const handleTimerComplete = () => {
     stopAmbientSound();
     setIsPaused(true);
-    // Success rate is based on whether they finished the time or completed earlier
-    onFinish(task.id, subTaskId, secondsElapsed, 100);
+    playAlarmSound();
+    setIsFinished(true);
   };
 
   const handleEarlyComplete = () => {
     stopAmbientSound();
     setIsPaused(true);
     // Estimate spent time or raw countdown
-    const spent = isCountdown ? (initialSeconds - secondsLeft) : secondsElapsed;
+    const spent = isCountdown ? (initialSeconds - secondsLeftRef.current) : secondsElapsedRef.current;
     const finalSpent = spent > 0 ? spent : 10; // minimum 10 seconds tracking
     onFinish(task.id, subTaskId, finalSpent, 100);
   };
 
-  // Radial progress calculations
+  // Radial progress calculations with correct circle proportions
   const totalDurationSeconds = initialSeconds;
   const progressPercent = isCountdown 
     ? (secondsLeft / totalDurationSeconds) * 100 
     : Math.min((secondsElapsed / totalDurationSeconds) * 100, 100);
 
-  const radius = 40;
-  const circumference = 2 * Math.PI * radius;
-  const strokeDashoffset = circumference - (progressPercent / 100) * circumference;
+  const actualRadius = 80;
+  const actualCircumference = 2 * Math.PI * actualRadius;
+  const strokeDashoffset = actualCircumference - (progressPercent / 100) * actualCircumference;
+
+  if (isFinished) {
+    return (
+      <div className="fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-md flex flex-col items-center justify-center p-4">
+        {/* Background Camo Grid Patterns */}
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#022c22_1px,transparent_1px),linear-gradient(to_bottom,#022c22_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-30" />
+        
+        <div className="relative w-full max-w-lg bg-slate-900 border border-emerald-500 rounded-3xl p-6 sm:p-8 flex flex-col items-center overflow-hidden shadow-2xl shadow-emerald-500/20 z-10 text-center space-y-6">
+          <div className="absolute -top-12 -left-12 w-32 h-32 rounded-full border border-emerald-500/30 bg-emerald-500/10 animate-ping" />
+          
+          <motion.div
+            initial={{ scale: 0.3, rotate: -45, opacity: 0 }}
+            animate={{ scale: 1, rotate: 0, opacity: 1 }}
+            transition={{ type: "spring", stiffness: 200, damping: 15 }}
+            className="w-24 h-24 bg-gradient-to-br from-yellow-400 to-amber-600 rounded-full flex items-center justify-center shadow-lg shadow-amber-500/30 border-2 border-amber-300"
+          >
+            <Award className="w-12 h-12 text-slate-950" />
+          </motion.div>
+
+          <div>
+            <span className="text-[10px] font-mono font-bold tracking-widest text-emerald-400 block mb-1">MISSION ACCOMPLISHED</span>
+            <h2 className="text-xl font-black text-white">恭喜特工！特训圆满成功</h2>
+            <p className="text-xs text-slate-300 mt-2 leading-relaxed">
+              您已成功完成了：<strong className="text-emerald-400">{subTask ? subTask.title : task.title}</strong>
+            </p>
+            <p className="text-xs text-emerald-400 mt-2 font-medium">
+              🎉 你认真的样子好酷！
+            </p>
+          </div>
+
+          <div className="w-full bg-slate-950/80 border border-slate-800 p-4 rounded-2xl flex items-center justify-around">
+            <div className="flex flex-col items-center">
+              <span className="text-[10px] font-bold text-slate-400">心愿金币</span>
+              <span className="text-base font-black text-amber-400">+{task.coinsReward} 枚</span>
+            </div>
+            <div className="w-[1px] h-8 bg-slate-800" />
+            <div className="flex flex-col items-center">
+              <span className="text-[10px] font-bold text-slate-400">战术怪兽币</span>
+              <span className="text-base font-black text-cyan-400">+{task.tacticalCoinsReward} 枚</span>
+            </div>
+          </div>
+
+          <button
+            onClick={() => {
+              onFinish(task.id, subTaskId, secondsElapsedRef.current, 100);
+            }}
+            className="w-full py-3.5 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black rounded-xl text-sm tracking-wide shadow-lg hover:from-emerald-400 hover:to-teal-400 transition-all flex items-center justify-center gap-2"
+          >
+            <Zap className="w-4 h-4 fill-current animate-pulse" />
+            领取特训奖励！
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-md flex flex-col items-center justify-center p-4">
@@ -329,7 +446,7 @@ export default function TaskTimer({ task, subTaskId, onClose, onFinish }: TaskTi
             <circle
               cx="112"
               cy="112"
-              r={radius * 2}
+              r={actualRadius}
               stroke="#1e293b"
               strokeWidth="8"
               fill="transparent"
@@ -338,14 +455,14 @@ export default function TaskTimer({ task, subTaskId, onClose, onFinish }: TaskTi
             <circle
               cx="112"
               cy="112"
-              r={radius * 2}
+              r={actualRadius}
               stroke="url(#timerGradient)"
               strokeWidth="10"
-              strokeDasharray={circumference * 2}
-              strokeDashoffset={strokeDashoffset * 2}
+              strokeDasharray={actualCircumference}
+              strokeDashoffset={strokeDashoffset}
               strokeLinecap="round"
               fill="transparent"
-              className="transition-all duration-300"
+              className="transition-all duration-1000 ease-linear"
             />
             <defs>
               <linearGradient id="timerGradient" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -355,14 +472,20 @@ export default function TaskTimer({ task, subTaskId, onClose, onFinish }: TaskTi
               </linearGradient>
             </defs>
           </svg>
-
-          {/* Core Numerical display */}
+ 
+          {/* Core Numerical display with custom spring tick animation */}
           <div className="absolute flex flex-col items-center">
-            <span className="text-4xl sm:text-5xl font-mono font-black tracking-tight text-white drop-shadow-[0_4px_12px_rgba(16,185,129,0.3)]">
+            <motion.span
+              key={isCountdown ? secondsLeft : secondsElapsed}
+              initial={{ scale: 1.15, opacity: 0.8, filter: "drop-shadow(0 0 8px rgba(16,185,129,0.8))" }}
+              animate={{ scale: 1, opacity: 1, filter: "drop-shadow(0 4px 12px rgba(16,185,129,0.3))" }}
+              transition={{ type: "spring", stiffness: 350, damping: 12 }}
+              className={`text-4xl sm:text-5xl font-mono font-black tracking-tight ${!isPaused ? 'text-emerald-400' : 'text-slate-200'}`}
+            >
               {formatTime(isCountdown ? secondsLeft : secondsElapsed)}
-            </span>
-            <span className="text-[10px] font-mono tracking-widest text-emerald-400 font-bold mt-1.5">
-              {isPaused ? 'ACTIVE STANDBY' : 'ENGAGED'}
+            </motion.span>
+            <span className="text-[10px] font-mono tracking-widest text-emerald-400 font-bold mt-2">
+              {isPaused ? '战术准备中' : '你认真的样子好酷！'}
             </span>
           </div>
         </div>
