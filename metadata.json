@@ -1,0 +1,6 @@
+{
+  "name": "特工每日计划",
+  "description": "专为10岁男孩子设计的军事特工主题每日计划与学习挑战管理应用，包含关卡化任务拆解、专注倒计时、战术商店、货币银行、勋章墙等趣味模块。",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
