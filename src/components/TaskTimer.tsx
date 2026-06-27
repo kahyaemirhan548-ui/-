@@ -441,17 +441,26 @@ export default function TaskTimer({ task, subTaskId, onClose, onFinish }: TaskTi
 
         {/* RADIAL PROGRESS WHEEL */}
         <div className="relative flex items-center justify-center w-56 h-56 mb-8">
-          <svg className="w-full h-full transform -rotate-90">
-            {/* Background Track */}
+          <svg className="w-full h-full transform -rotate-90" viewBox="0 0 224 224">
+            {/* Outer Decorative Track - 100% Complete Unbroken Circle */}
+            <circle
+              cx="112"
+              cy="112"
+              r={actualRadius + 6}
+              stroke="#1e293b"
+              strokeWidth="1.5"
+              fill="transparent"
+            />
+            {/* Thick Dark Slate Background Track - 100% Complete Unbroken Circle */}
             <circle
               cx="112"
               cy="112"
               r={actualRadius}
-              stroke="#1e293b"
-              strokeWidth="8"
+              stroke="#0f172a"
+              strokeWidth="10"
               fill="transparent"
             />
-            {/* Active glowing meter */}
+            {/* Active glowing meter representing progress */}
             <circle
               cx="112"
               cy="112"
@@ -464,6 +473,15 @@ export default function TaskTimer({ task, subTaskId, onClose, onFinish }: TaskTi
               fill="transparent"
               className="transition-all duration-1000 ease-linear"
             />
+            {/* Inner Decorative Track - 100% Complete Unbroken Circle */}
+            <circle
+              cx="112"
+              cy="112"
+              r={actualRadius - 6}
+              stroke="#1e293b"
+              strokeWidth="1.5"
+              fill="transparent"
+            />
             <defs>
               <linearGradient id="timerGradient" x1="0%" y1="0%" x2="100%" y2="100%">
                 <stop offset="0%" stopColor="#10b981" /> {/* Emerald */}
@@ -473,8 +491,8 @@ export default function TaskTimer({ task, subTaskId, onClose, onFinish }: TaskTi
             </defs>
           </svg>
  
-          {/* Core Numerical display with custom spring tick animation */}
-          <div className="absolute flex flex-col items-center">
+          {/* Core Numerical display with custom spring tick animation - Perfectly Centered */}
+          <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
             <motion.span
               key={isCountdown ? secondsLeft : secondsElapsed}
               initial={{ scale: 1.15, opacity: 0.8, filter: "drop-shadow(0 0 8px rgba(16,185,129,0.8))" }}
