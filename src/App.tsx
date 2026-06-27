@@ -17,13 +17,36 @@ import {
   Coins, Landmark, ChevronRight, Zap, Target, BookOpen, AlertCircle, Sparkles, LogOut, CheckSquare
 } from 'lucide-react';
 
+const getOperatorNameByLevel = (level: number): string => {
+  switch (level) {
+    case 1: return '威虫';
+    case 2: return '威龙';
+    case 3: return '液氮';
+    case 4: return '深蓝';
+    case 5: return '红狼';
+    case 6: return '比特';
+    case 7: return '无名';
+    default: return '回响';
+  }
+};
+
 export default function App() {
   // --- 1. STATE INITIALIZATION ---
   const [activeTab, setActiveTab] = useState<'dashboard' | 'weekly' | 'report' | 'shop' | 'bank' | 'achievements'>('dashboard');
   
   const [operator, setOperator] = useState<OperatorProfile>(() => {
     const saved = localStorage.getItem('op_profile');
-    return saved ? JSON.parse(saved) : INITIAL_OPERATOR;
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        parsed.maxExp = 150;
+        parsed.name = getOperatorNameByLevel(parsed.level);
+        return parsed;
+      } catch (e) {
+        return INITIAL_OPERATOR;
+      }
+    }
+    return INITIAL_OPERATOR;
   });
 
   const [skins, setSkins] = useState<SkinItem[]>(() => {
@@ -80,8 +103,13 @@ export default function App() {
   const [showLevelUpModal, setShowLevelUpModal] = useState(false);
   const [unlockedSkinName, setUnlockedSkinName] = useState<string | null>(null);
   const [parentCodeInput, setParentCodeInput] = useState('');
-  const [showParentVerifyModal, setShowParentVerifyModal] = useState<{ isOpen: boolean; rewardItem?: RewardItem; callback?: () => void }>({ isOpen: false });
+  const [showParentVerifyModal, setShowParentVerifyModal] = useState<{ isOpen: boolean; rewardItem?: RewardItem; callback?: () => void; isParentCommand?: boolean }>({ isOpen: false });
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  // Parent Admin State Variables
+  const [parentAllowanceAmount, setParentAllowanceAmount] = useState<number>(50);
+  const [parentResetType, setParentResetType] = useState<'all' | 'gold' | 'tactical' | 'tasks'>('all');
+  const [parentResetAmount, setParentResetAmount] = useState<number>(0);
 
   // --- 2. LOCAL PERSISTENCE ---
   useEffect(() => {
@@ -118,13 +146,12 @@ export default function App() {
   const awardExperience = (expAmount: number, currentOp: OperatorProfile) => {
     let newExp = currentOp.exp + expAmount;
     let newLevel = currentOp.level;
-    let maxExp = currentOp.maxExp;
+    let maxExp = 150; // Each level takes exactly 150 EXP
     let didLevelUp = false;
 
     while (newExp >= maxExp) {
       newExp -= maxExp;
       newLevel += 1;
-      maxExp = Math.round(maxExp * 1.25); // increase experience ceiling
       didLevelUp = true;
     }
 
@@ -136,7 +163,8 @@ export default function App() {
       ...currentOp,
       level: newLevel,
       exp: newExp,
-      maxExp
+      maxExp,
+      name: getOperatorNameByLevel(newLevel)
     };
   };
 
@@ -460,15 +488,23 @@ export default function App() {
 
   const handleVerifyParentCode = (e: React.FormEvent) => {
     e.preventDefault();
-    // Simplified parent code check (e.g., 666 or 888) to make it accessible but secure
-    if (parentCodeInput === '666' || parentCodeInput === '888' || parentCodeInput.toLowerCase() === 'parent') {
+    const isParentCmd = showParentVerifyModal.isParentCommand;
+    const isVerified = isParentCmd
+      ? (parentCodeInput === '123456')
+      : (parentCodeInput === '666' || parentCodeInput === '888' || parentCodeInput.toLowerCase() === 'parent' || parentCodeInput === '123456');
+
+    if (isVerified) {
       if (showParentVerifyModal.callback) {
         showParentVerifyModal.callback();
       }
       setParentCodeInput('');
       setShowParentVerifyModal({ isOpen: false });
     } else {
-      triggerToast(`❌ 家长密码错误！请询问爸爸妈妈获得正确的口令(提示: 666)`);
+      if (isParentCmd) {
+        triggerToast(`❌ 家长授权口令错误！请输入直通台正确的6位口令锁 (密码为: 123456)`);
+      } else {
+        triggerToast(`❌ 家长密码错误！请询问爸爸妈妈获得正确的口令(提示: 666)`);
+      }
     }
   };
 
@@ -604,7 +640,7 @@ export default function App() {
       id: `tx-${Date.now()}`,
       timestamp: new Date().toISOString(),
       type: 'save',
-      description: `储蓄金库每日利息结算到账 (+5%复利)`,
+      description: `储蓄金库每日利息结算到账 (+3%复利)`,
       goldChange: interestVal,
       tacticalChange: 0
     };
@@ -707,6 +743,7 @@ export default function App() {
                     skinId={operator.equippedSkinId} 
                     className="w-20 h-20"
                     glow={true}
+                    level={operator.level}
                   />
                   <div className="flex-1">
                     <div className="flex items-center gap-1.5">
@@ -785,20 +822,75 @@ export default function App() {
               </div>
 
               {/* Parents direct command widget */}
-              <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 backdrop-blur-md h-fit">
-                <span className="text-[10px] font-mono font-bold text-slate-400 block mb-1 uppercase tracking-wider">
-                  👨‍👩‍👦 PARENT COMMAND
-                </span>
-                <h4 className="text-xs font-bold text-slate-200">家长管理直通台</h4>
-                <p className="text-[10px] text-slate-400 leading-relaxed mt-1.5 mb-3">
-                  家长可通过此处手动下发或微调任务，亦可手动核销愿望。
-                </p>
-                <div className="flex gap-1.5 sm:gap-2">
+              <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 backdrop-blur-md h-fit space-y-4">
+                <div>
+                  <span className="text-[10px] font-mono font-bold text-slate-400 block mb-1 uppercase tracking-wider">
+                    👨‍👩‍👦 PARENT COMMAND
+                  </span>
+                  <h4 className="text-xs font-bold text-slate-200">家长管理直通台</h4>
+                  <p className="text-[10px] text-slate-400 leading-relaxed mt-1">
+                    家长可通过此处手动下发或微调任务，亦可手动核销愿望。
+                  </p>
+                </div>
+
+                {/* Sub-form fields */}
+                <div className="space-y-3 pt-2 border-t border-slate-800/60">
+                  {/* Allowance quantity input */}
+                  <div>
+                    <label className="text-[10px] font-mono font-bold text-slate-400 block mb-1">
+                      津贴下发金币数量
+                    </label>
+                    <input
+                      type="number"
+                      min="1"
+                      value={parentAllowanceAmount}
+                      onChange={(e) => setParentAllowanceAmount(Math.max(1, Number(e.target.value)))}
+                      className="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs text-red-600 font-mono font-black focus:outline-none focus:border-cyan-500 shadow-inner"
+                    />
+                  </div>
+
+                  {/* Clear scope select */}
+                  <div>
+                    <label className="text-[10px] font-mono font-bold text-slate-400 block mb-1">
+                      数据清零/扣除项目范围
+                    </label>
+                    <select
+                      value={parentResetType}
+                      onChange={(e) => setParentResetType(e.target.value as any)}
+                      className="w-full bg-slate-950 border border-slate-850 rounded-xl px-3 py-2 text-xs text-slate-300 focus:outline-none focus:border-cyan-500"
+                    >
+                      <option value="all">彻底重置所有系统数据</option>
+                      <option value="gold">仅清零/扣除指定心愿金币</option>
+                      <option value="tactical">仅清零/扣除指定战术怪兽币</option>
+                      <option value="tasks">仅清零/重置所有任务日程</option>
+                    </select>
+                  </div>
+
+                  {/* Clear amount option (for gold/tactical) */}
+                  {(parentResetType === 'gold' || parentResetType === 'tactical') && (
+                    <div className="animate-in fade-in slide-in-from-top-2 duration-250">
+                      <label className="text-[10px] font-mono font-bold text-slate-400 block mb-1">
+                        指定清零/扣减数量 (输入 0 表示全部清空)
+                      </label>
+                      <input
+                        type="number"
+                        min="0"
+                        value={parentResetAmount}
+                        onChange={(e) => setParentResetAmount(Math.max(0, Number(e.target.value)))}
+                        className="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs text-red-600 font-mono font-black focus:outline-none focus:border-cyan-500 shadow-inner"
+                      />
+                    </div>
+                  )}
+                </div>
+
+                {/* Action buttons */}
+                <div className="flex gap-1.5 sm:gap-2 pt-2">
                   <button 
                     onClick={() => setActiveTab('weekly')} 
-                    className="flex-1 py-2 px-2.5 bg-slate-950 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-slate-300 font-bold text-[10px] rounded-lg transition-all flex items-center justify-center gap-1"
+                    className="flex-1 py-2 px-2 bg-slate-950 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-slate-300 font-bold text-[10px] rounded-lg transition-all flex items-center justify-center gap-1"
+                    title="安排战术日程表"
                   >
-                    <CalendarRange className="w-3 h-3" />
+                    <CalendarRange className="w-3.5 h-3.5" />
                     战术排班
                   </button>
                   <button 
@@ -806,16 +898,17 @@ export default function App() {
                       setShowParentVerifyModal({
                         isOpen: true,
                         rewardItem: undefined,
+                        isParentCommand: true,
                         callback: () => {
-                          // Allow simple direct coin editing as a parent administrator tool!
-                          setOperator(prev => ({ ...prev, goldCoins: prev.goldCoins + 50 }));
-                          triggerToast("👮 家长直接下发了 +50 金币特攻补贴！");
+                          setOperator(prev => ({ ...prev, goldCoins: prev.goldCoins + parentAllowanceAmount }));
+                          triggerToast(`👮 家长直接下发了 +${parentAllowanceAmount} 心愿金币特攻补贴！`);
                         }
                       });
                     }}
-                    className="flex-1 py-2 px-2.5 bg-slate-950 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-amber-400 font-bold text-[10px] rounded-lg transition-all flex items-center justify-center gap-1"
+                    className="flex-1 py-2 px-2 bg-slate-950 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-amber-400 font-bold text-[10px] rounded-lg transition-all flex items-center justify-center gap-1"
+                    title="下发津贴"
                   >
-                    <Coins className="w-3 h-3" />
+                    <Coins className="w-3.5 h-3.5" />
                     下发津贴
                   </button>
                   <button 
@@ -823,28 +916,49 @@ export default function App() {
                       setShowParentVerifyModal({
                         isOpen: true,
                         rewardItem: undefined,
+                        isParentCommand: true,
                         callback: () => {
-                          localStorage.removeItem('op_profile');
-                          localStorage.removeItem('op_skins');
-                          localStorage.removeItem('op_achievements');
-                          localStorage.removeItem('op_tasks');
-                          localStorage.removeItem('op_savings');
-                          localStorage.removeItem('op_transactions');
-                          
-                          setOperator(INITIAL_OPERATOR);
-                          setSkins(INITIAL_SKINS);
-                          setAchievements(INITIAL_ACHIEVEMENTS);
-                          setTasks(INITIAL_TASKS);
-                          setSavings({ balance: 0, lastInterestPaid: '2026-06-30' });
-                          setTransactions([]);
-                          
-                          triggerToast("🔒 系统数据已重置！一切清零，重新开始！");
+                          if (parentResetType === 'all') {
+                            localStorage.removeItem('op_profile');
+                            localStorage.removeItem('op_skins');
+                            localStorage.removeItem('op_achievements');
+                            localStorage.removeItem('op_tasks');
+                            localStorage.removeItem('op_savings');
+                            localStorage.removeItem('op_transactions');
+                            
+                            setOperator(INITIAL_OPERATOR);
+                            setSkins(INITIAL_SKINS);
+                            setAchievements(INITIAL_ACHIEVEMENTS);
+                            setTasks(INITIAL_TASKS);
+                            setSavings({ balance: 0, lastInterestPaid: '2026-06-30' });
+                            setTransactions([]);
+                            
+                            triggerToast("🔒 所有系统数据已彻底清零重置！");
+                          } else if (parentResetType === 'gold') {
+                            setOperator(prev => {
+                              const deductVal = parentResetAmount <= 0 ? prev.goldCoins : parentResetAmount;
+                              const nextCoins = Math.max(0, prev.goldCoins - deductVal);
+                              return { ...prev, goldCoins: nextCoins };
+                            });
+                            triggerToast(parentResetAmount <= 0 ? "🔒 家长已成功清空所有心愿金币！" : `🔒 家长已扣除特工 ${parentResetAmount} 心愿金币！`);
+                          } else if (parentResetType === 'tactical') {
+                            setOperator(prev => {
+                              const deductVal = parentResetAmount <= 0 ? prev.tacticalCoins : parentResetAmount;
+                              const nextCoins = Math.max(0, prev.tacticalCoins - deductVal);
+                              return { ...prev, tacticalCoins: nextCoins };
+                            });
+                            triggerToast(parentResetAmount <= 0 ? "🔒 家长已成功清空所有战术怪兽币！" : `🔒 家长已扣除特工 ${parentResetAmount} 战术怪兽币！`);
+                          } else if (parentResetType === 'tasks') {
+                            setTasks([]);
+                            triggerToast("🔒 家长已清空/重置所有日程任务！");
+                          }
                         }
                       });
                     }}
-                    className="flex-1 py-2 px-2.5 bg-slate-950 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-red-400 hover:text-red-300 font-bold text-[10px] rounded-lg transition-all flex items-center justify-center gap-1"
+                    className="flex-1 py-2 px-2 bg-slate-950 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-red-400 hover:text-red-300 font-bold text-[10px] rounded-lg transition-all flex items-center justify-center gap-1"
+                    title="重置或清理部分数据"
                   >
-                    <LogOut className="w-3 h-3" />
+                    <LogOut className="w-3.5 h-3.5" />
                     数据清零
                   </button>
                 </div>
@@ -1061,7 +1175,7 @@ export default function App() {
             <span className="text-[10px] font-mono text-cyan-400 font-black block tracking-widest text-center uppercase">SUPERVISORY LOCK</span>
             <h3 className="text-sm font-black text-slate-100 text-center mt-1">家长控制中心口令锁</h3>
             
-            {showParentVerifyModal.rewardItem ? (
+             {showParentVerifyModal.rewardItem ? (
               <p className="text-[11px] text-slate-400 leading-normal text-center mt-3 bg-slate-950/60 p-3 rounded-xl border border-slate-850">
                 ⚠️ 正在申请消耗 🪙<strong>{showParentVerifyModal.rewardItem.cost}</strong> 金币 
                 兑换：<strong>【{showParentVerifyModal.rewardItem.name}】</strong>
@@ -1070,7 +1184,7 @@ export default function App() {
               </p>
             ) : (
               <p className="text-[11px] text-slate-400 leading-normal text-center mt-3 bg-slate-950/60 p-3 rounded-xl border border-slate-850">
-                👮 家长行政命令。请输入家长授权密码，以进行津贴下发或数据修改：
+                👮 家长行政命令。请输入家长授权口令锁，以进行津贴下发或数据修改：
               </p>
             )}
 
@@ -1078,10 +1192,10 @@ export default function App() {
               <div>
                 <input
                   type="password"
-                  placeholder="请输入家长密码 (初始提示: 666 或 parent)"
+                  placeholder="请输入家长授权口令"
                   value={parentCodeInput}
                   onChange={(e) => setParentCodeInput(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-xs text-center text-white font-mono focus:outline-none focus:border-cyan-500"
+                  className="w-full bg-white border border-slate-300 rounded-xl px-4 py-3 text-xs text-center text-black font-mono font-bold focus:outline-none focus:border-cyan-500 shadow-inner"
                   required
                   autoFocus
                 />

@@ -80,7 +80,7 @@ export default function Bank({ goldCoins, tacticalCoins, savings, transactions, 
               <span className="text-2xl font-black font-mono text-emerald-400">{savings.balance}</span>
               <span className="text-[10px] text-slate-400">心愿币</span>
             </div>
-            <span className="text-[9px] text-slate-500 font-mono">每日利息计提收益：<strong>+5.0% / 日复利</strong></span>
+            <span className="text-[9px] text-slate-500 font-mono">每日利息计提收益：<strong>+3.0% / 日复利</strong></span>
           </div>
         </div>
 
@@ -97,12 +97,12 @@ export default function Bank({ goldCoins, tacticalCoins, savings, transactions, 
           </div>
 
           <button
-            onClick={() => onPaySimulatedInterest(0.05)}
+            onClick={() => onPaySimulatedInterest(0.03)}
             className="w-full mt-3 py-1.5 px-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black text-[11px] rounded-lg shadow-md hover:shadow-emerald-500/10 transition-all flex items-center justify-center gap-1 font-mono"
-            title="手动触发5%生息事件"
+            title="手动触发3%生息事件"
           >
             <TrendingUp className="w-3.5 h-3.5" />
-            手动结算一日利息 (+5.0%)
+            手动结算一日利息 (+3.0%)
           </button>
         </div>
 
@@ -271,7 +271,7 @@ export default function Bank({ goldCoins, tacticalCoins, savings, transactions, 
                 max={maxAvailableForSaving}
                 value={savingVal}
                 onChange={(e) => setSavingVal(Number(e.target.value))}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-xs text-white font-mono focus:outline-none focus:border-cyan-500"
+                className="w-full bg-white border border-slate-300 rounded-xl px-4 py-3 text-xs text-black font-mono font-bold focus:outline-none focus:border-cyan-500 shadow-inner"
                 required
               />
             </div>

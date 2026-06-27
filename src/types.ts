@@ -1,4 +1,4 @@
-export type SubjectType = '语文' | '数学' | '英语' | '战术训导';
+export type SubjectType = '真理' | '语文' | '数学' | '英语' | '生活' | '其他';
 
 export type PriorityType = 'I' | 'II' | 'III';
 

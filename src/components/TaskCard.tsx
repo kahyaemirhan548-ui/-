@@ -15,6 +15,12 @@ export default function TaskCard({ task, onCompleteTask, onToggleSubTask, onStar
 
   const getSubjectStyles = (subject: string) => {
     switch (subject) {
+      case '真理':
+        return {
+          bg: 'bg-purple-500/10 border-purple-500/30 text-purple-400',
+          badge: 'bg-purple-600 text-white',
+          accent: 'border-l-purple-500'
+        };
       case '语文':
         return {
           bg: 'bg-red-500/10 border-red-500/30 text-red-400',
@@ -33,12 +39,18 @@ export default function TaskCard({ task, onCompleteTask, onToggleSubTask, onStar
           badge: 'bg-amber-400 text-slate-900',
           accent: 'border-l-amber-400'
         };
-      case '战术训导':
-      default:
+      case '生活':
         return {
           bg: 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400',
           badge: 'bg-emerald-600 text-white',
           accent: 'border-l-emerald-500'
+        };
+      case '其他':
+      default:
+        return {
+          bg: 'bg-teal-500/10 border-teal-500/30 text-teal-400',
+          badge: 'bg-teal-600 text-white',
+          accent: 'border-l-teal-500'
         };
     }
   };

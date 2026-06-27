@@ -9,10 +9,10 @@ export const getFormattedDate = (offsetDays: number = 0): string => {
 };
 
 export const INITIAL_OPERATOR: OperatorProfile = {
-  name: "冷锋特工",
+  name: "威虫",
   level: 1,
   exp: 0,
-  maxExp: 100,
+  maxExp: 150,
   goldCoins: 0, // 心愿币
   tacticalCoins: 0, // 战术币
   equippedSkinId: 'skin-classic',
@@ -357,7 +357,7 @@ export const INITIAL_TASKS: Task[] = [
   {
     id: 'task-sat-3',
     title: '战术训导：障碍跑与体能考核',
-    subject: '战术训导',
+    subject: '生活',
     priority: 'III',
     difficulty: '困难',
     estimatedTime: 25,

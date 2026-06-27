@@ -4,10 +4,98 @@ interface OperatorAvatarProps {
   skinId: string;
   className?: string;
   glow?: boolean;
+  level?: number;
 }
 
-export default function OperatorAvatar({ skinId, className = 'w-24 h-24', glow = true }: OperatorAvatarProps) {
+export default function OperatorAvatar({ skinId, className = 'w-24 h-24', glow = true, level }: OperatorAvatarProps) {
   const getAvatarColors = () => {
+    // If level is provided, use the level-based Delta Force Operator color themes
+    if (level !== undefined) {
+      switch (level) {
+        case 1: // 威虫 (Weichong)
+          return {
+            helmet: '#3B5323', // Olive green
+            visor: '#39FF14', // Neon lime green glow
+            skin: '#FFE0B2',
+            armor: '#1E2F1C',
+            strap: '#111827',
+            glowColor: 'rgba(57, 255, 20, 0.4)',
+            camoSpots: ['#2F4F4F', '#556B2F', '#000000']
+          };
+        case 2: // 威龙 (Weilong)
+          return {
+            helmet: '#8B0000', // Dark red
+            visor: '#FFD700', // Golden dragon glow
+            skin: '#FFE0B2',
+            armor: '#2C3E50', // Dark steel
+            strap: '#1A252F',
+            glowColor: 'rgba(255, 215, 0, 0.4)',
+            camoSpots: ['#FF4500', '#D35400', '#000000']
+          };
+        case 3: // 液氮 (Yedan)
+          return {
+            helmet: '#E0F7FA', // Ice blue
+            visor: '#00E5FF', // Electric cyan glow
+            skin: '#F5FFFA',
+            armor: '#0D47A1', // Deep navy
+            strap: '#111827',
+            glowColor: 'rgba(0, 229, 255, 0.4)',
+            camoSpots: ['#80DEEA', '#B2EBF2', '#000000']
+          };
+        case 4: // 深蓝 (Shenlan)
+          return {
+            helmet: '#0A192F', // Deep ocean blue
+            visor: '#2979FF', // Neon blue glow
+            skin: '#ECEFF1',
+            armor: '#1A237E', // Dark indigo
+            strap: '#111827',
+            glowColor: 'rgba(41, 121, 255, 0.4)',
+            camoSpots: ['#0D47A1', '#1565C0', '#000000']
+          };
+        case 5: // 红狼 (Honglang)
+          return {
+            helmet: '#1F1A1A', // Matte dark grey
+            visor: '#FF1744', // Burning red glow
+            skin: '#FFEBEE',
+            armor: '#3E2723',
+            strap: '#111827',
+            glowColor: 'rgba(255, 23, 68, 0.4)',
+            camoSpots: ['#D50000', '#C62828', '#000000']
+          };
+        case 6: // 比特 (Bite)
+          return {
+            helmet: '#2A0845', // Digital purple
+            visor: '#FF007F', // Neon pink glow
+            skin: '#FFF0F5',
+            armor: '#1A0033',
+            strap: '#9400D3',
+            glowColor: 'rgba(255, 0, 127, 0.4)',
+            camoSpots: ['#D500F9', '#7B1FA2', '#000000']
+          };
+        case 7: // 无名 (Wuming)
+          return {
+            helmet: '#E0E0E0', // Silver
+            visor: '#FFFFFF', // Pure white ghost glow
+            skin: '#FAFAFA',
+            armor: '#212121',
+            strap: '#111827',
+            glowColor: 'rgba(255, 255, 255, 0.4)',
+            camoSpots: ['#9E9E9E', '#757575', '#000000']
+          };
+        case 8: // 回响 (Huixiang)
+        default:
+          return {
+            helmet: '#FFD700', // Gold
+            visor: '#FFEB3B', // Bright gold glow
+            skin: '#FFFDE7',
+            armor: '#1A1A2E',
+            strap: '#0F0C1B',
+            glowColor: 'rgba(255, 235, 59, 0.5)',
+            camoSpots: ['#FFC107', '#E91E63', '#000000']
+          };
+      }
+    }
+
     switch (skinId) {
       case 'skin-desert':
         return {

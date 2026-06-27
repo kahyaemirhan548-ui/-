@@ -173,10 +173,12 @@ export default function WeeklyPlan({ tasks, onAddTask, onToggleComplete, onDelet
 
   const getSubjectColor = (subj: string) => {
     switch (subj) {
+      case '真理': return 'bg-purple-500/10 border-purple-500/30 text-purple-400';
       case '语文': return 'bg-red-500/10 border-red-500/30 text-red-400';
       case '数学': return 'bg-blue-500/10 border-blue-500/30 text-blue-400';
       case '英语': return 'bg-amber-500/10 border-amber-500/30 text-amber-300';
-      case '战术训导': default: return 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400';
+      case '生活': return 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400';
+      case '其他': default: return 'bg-teal-500/10 border-teal-500/30 text-teal-400';
     }
   };
 
@@ -377,10 +379,12 @@ export default function WeeklyPlan({ tasks, onAddTask, onToggleComplete, onDelet
                     onChange={(e) => setSubject(e.target.value as SubjectType)}
                     className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-cyan-500"
                   >
+                    <option value="真理">真理</option>
                     <option value="语文">语文</option>
                     <option value="数学">数学</option>
                     <option value="英语">英语</option>
-                    <option value="战术训导">战术训导</option>
+                    <option value="生活">生活</option>
+                    <option value="其他">其他</option>
                   </select>
                 </div>
 
@@ -521,10 +525,12 @@ export default function WeeklyPlan({ tasks, onAddTask, onToggleComplete, onDelet
                             onChange={(e) => setEditSubject(e.target.value as SubjectType)}
                             className="w-full bg-slate-950 border border-slate-800 rounded px-2 py-1 text-xs text-slate-200 focus:outline-none focus:border-cyan-500"
                           >
+                            <option value="真理">真理</option>
                             <option value="语文">语文</option>
                             <option value="数学">数学</option>
                             <option value="英语">英语</option>
-                            <option value="战术训导">战术训导</option>
+                            <option value="生活">生活</option>
+                            <option value="其他">其他</option>
                           </select>
                         </div>
 

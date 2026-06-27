@@ -39,10 +39,12 @@ export default function Report({ tasks }: ReportProps) {
   });
 
   const pieChartColors = {
+    '真理': '#a855f7', // Purple
     '语文': '#ef4444', // Red
     '数学': '#3b82f6', // Blue
     '英语': '#f59e0b', // Amber/Yellow
-    '战术训导': '#10b981' // Emerald/Green
+    '生活': '#10b981', // Emerald/Green
+    '其他': '#14b8a6'  // Teal
   };
 
   const subjectData = Object.keys(subjectStats).map(key => ({
@@ -53,10 +55,12 @@ export default function Report({ tasks }: ReportProps) {
 
   // If no tasks are completed, show 0 for all subjects to reflect a clean cleared state
   const subjectChartData = subjectData.length > 0 ? subjectData : [
+    { name: '真理', value: 0, color: '#a855f7' },
     { name: '语文', value: 0, color: '#ef4444' },
     { name: '数学', value: 0, color: '#3b82f6' },
     { name: '英语', value: 0, color: '#f59e0b' },
-    { name: '战术训导', value: 0, color: '#10b981' }
+    { name: '生活', value: 0, color: '#10b981' },
+    { name: '其他', value: 0, color: '#14b8a6' }
   ];
 
   // 3. Daily Study Duration Trend Area Chart Data
@@ -92,10 +96,12 @@ export default function Report({ tasks }: ReportProps) {
 
   // 5. Subject Specific task ratios for a multi-bar chart
   const subjectRatioMap: Record<string, { completed: number, total: number }> = {
+    '真理': { completed: 0, total: 0 },
     '语文': { completed: 0, total: 0 },
     '数学': { completed: 0, total: 0 },
     '英语': { completed: 0, total: 0 },
-    '战术训导': { completed: 0, total: 0 }
+    '生活': { completed: 0, total: 0 },
+    '其他': { completed: 0, total: 0 }
   };
 
   tasks.forEach(t => {
@@ -115,7 +121,7 @@ export default function Report({ tasks }: ReportProps) {
   const totalCompletedMinutes = Object.values(subjectStats).reduce((sum, val) => sum + val, 0);
   const subjectRatiosText = totalCompletedMinutes > 0 
     ? Object.keys(subjectStats).map(key => `${key}: ${Math.round((subjectStats[key] / totalCompletedMinutes) * 100)}%`).join(' | ')
-    : '数学: 0% | 语文: 0% | 英语: 0%';
+    : '真理: 0% | 语文: 0% | 数学: 0% | 英语: 0% | 生活: 0% | 其他: 0%';
   const balanceText = totalCompletedMinutes > 0 ? '结构均衡' : '暂无数据';
 
   // Let's check how many completed tasks had actualTime > 0 and actualTime < estimatedTime
