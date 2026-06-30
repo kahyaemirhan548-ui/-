@@ -109,17 +109,17 @@ export const INITIAL_REWARDS: RewardItem[] = [
   {
     id: 'wish-tablet',
     name: '玩平板 15分钟',
-    cost: 30,
+    cost: 150,
     icon: 'Tablet',
     category: 'wish',
-    description: '使用平板看视频或浏览内容，每次消耗30心愿币。',
+    description: '使用平板看视频或浏览内容，每次消耗150心愿币。',
     rewardType: 'screen',
     duration: 15
   },
   {
     id: 'wish-game',
     name: '玩主机游戏 30分钟',
-    cost: 50,
+    cost: 300,
     icon: 'Gamepad2',
     category: 'wish',
     description: '周末可兑换Switch或PlayStation联机游戏时间，全神贯注畅玩！',
@@ -129,7 +129,7 @@ export const INITIAL_REWARDS: RewardItem[] = [
   {
     id: 'wish-tv',
     name: '看电视 30分钟',
-    cost: 30,
+    cost: 200,
     icon: 'Tv',
     category: 'wish',
     description: '大屏观影体验，用于看动漫或少儿纪录片。',
@@ -139,7 +139,7 @@ export const INITIAL_REWARDS: RewardItem[] = [
   {
     id: 'wish-money',
     name: '零花钱 10元',
-    cost: 100,
+    cost: 300,
     icon: 'Coins',
     category: 'wish',
     description: '可以直接存入零钱包的现实硬币，用于购买小玩具或文具！',
@@ -148,7 +148,7 @@ export const INITIAL_REWARDS: RewardItem[] = [
   {
     id: 'wish-toy',
     name: '兑换现实乐高/拼图',
-    cost: 800,
+    cost: 1500,
     icon: 'PackageOpen',
     category: 'wish',
     description: '终极心愿，通过持续自律积攒，兑换一款中型模型或拼装玩具！',
@@ -157,7 +157,7 @@ export const INITIAL_REWARDS: RewardItem[] = [
   {
     id: 'wish-snack-real',
     name: '周五大餐/零食自选',
-    cost: 150,
+    cost: 800,
     icon: 'Cookie',
     category: 'wish',
     description: '兑换一次麦当劳、必胜客或周末超市自选一袋最爱的零食包！',
