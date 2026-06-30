@@ -1,4 +1,4 @@
-import { Task, RewardItem, SkinItem, Achievement, OperatorProfile } from './types';
+import { Task, RewardItem, SkinItem, Achievement, OperatorProfile, SubjectType, PriorityType, DifficultyType } from './types';
 
 export interface WeekDay {
   name: string;
@@ -468,55 +468,108 @@ export const FOCUS_SOUNDS: FocusSound[] = [
   { id: 'lofi', name: '特工休整Lo-Fi', description: '轻松且有节奏感的低传真电子节奏', emoji: '🎵', frequency: '741Hz' }
 ];
 
-export const TASK_TEMPLATES = [
+export const TASK_TEMPLATES: {
+  title: string;
+  subject: SubjectType;
+  duration: number;
+  priority: PriorityType;
+  difficulty: DifficultyType;
+  subTasks: { title: string; duration: number }[];
+}[] = [
   {
-    title: '课前新课预习',
+    title: '读经祷告',
+    subject: '真理' as const,
+    duration: 30,
+    priority: 'I' as const,
+    difficulty: '简单' as const,
+    subTasks: []
+  },
+  {
+    title: '阅读听妈妈系列旧约故事',
+    subject: '真理' as const,
+    duration: 90,
+    priority: 'I' as const,
+    difficulty: '简单' as const,
+    subTasks: []
+  },
+  {
+    title: '作文练习',
+    subject: '语文' as const,
+    duration: 45,
+    priority: 'II' as const,
+    difficulty: '中等' as const,
+    subTasks: []
+  },
+  {
+    title: '背诵课文/古诗/文言文',
     subject: '语文' as const,
     duration: 30,
     priority: 'II' as const,
     difficulty: '中等' as const,
-    subTasks: [
-      { title: '朗读新课文 2-3 遍', duration: 8 },
-      { title: '圈划段落、标记难懂字词并查字典', duration: 10 },
-      { title: '书写生字词，并标出部首和音调', duration: 7 },
-      { title: '默读思考课后习题', duration: 5 }
-    ]
+    subTasks: []
   },
   {
-    title: '课后作业与巩固',
+    title: '练字1张',
     subject: '语文' as const,
     duration: 20,
-    priority: 'I' as const,
+    priority: 'II' as const,
     difficulty: '简单' as const,
-    subTasks: [
-      { title: '完成课后配套练习册对应章节', duration: 12 },
-      { title: '对答案，用红笔在错题上打圈', duration: 4 },
-      { title: '朗读课文并重温课堂笔记', duration: 4 }
-    ]
+    subTasks: []
   },
   {
-    title: '奥数与思维突破',
+    title: '口算15题',
     subject: '数学' as const,
-    duration: 40,
-    priority: 'I' as const,
-    difficulty: '困难' as const,
-    subTasks: [
-      { title: '自主读题并拆解题意', duration: 10 },
-      { title: '尝试画图或列方程探究解答', duration: 15 },
-      { title: '观看解题教学微课或核对参考答案', duration: 8 },
-      { title: '在本子上抄录错题，总结核心原理', duration: 7 }
-    ]
+    duration: 10,
+    priority: 'II' as const,
+    difficulty: '简单' as const,
+    subTasks: []
   },
   {
-    title: '口语与听力特训',
+    title: '阅读打卡',
+    subject: '英语' as const,
+    duration: 10,
+    priority: 'II' as const,
+    difficulty: '简单' as const,
+    subTasks: []
+  },
+  {
+    title: '听说一体化学习',
+    subject: '英语' as const,
+    duration: 60,
+    priority: 'II' as const,
+    difficulty: '中等' as const,
+    subTasks: []
+  },
+  {
+    title: '自然拼读学习',
     subject: '英语' as const,
     duration: 20,
     priority: 'II' as const,
     difficulty: '简单' as const,
-    subTasks: [
-      { title: '聆听原版录音 2 遍并进行逐句跟读', duration: 10 },
-      { title: '在口语软件中完成模仿评测', duration: 6 },
-      { title: '复习单元核心词汇并做大声拼读', duration: 4 }
-    ]
+    subTasks: []
+  },
+  {
+    title: '绘本阅读',
+    subject: '英语' as const,
+    duration: 20,
+    priority: 'II' as const,
+    difficulty: '简单' as const,
+    subTasks: []
+  },
+  {
+    title: '整理床铺、桌面/玩具',
+    subject: '生活' as const,
+    duration: 30,
+    priority: 'I' as const,
+    difficulty: '简单' as const,
+    subTasks: []
+  },
+  {
+    title: '做饭/洗碗/擦桌子/扔垃圾',
+    subject: '生活' as const,
+    duration: 30,
+    priority: 'I' as const,
+    difficulty: '简单' as const,
+    subTasks: []
   }
 ];

@@ -884,17 +884,19 @@ export default function WeeklyPlan({ tasks, onAddTask, onToggleComplete, onDelet
                   </div>
 
                   {/* Subtask micro-steps list preview */}
-                  <div className="mt-2 space-y-1 bg-slate-50 p-2 rounded-lg border border-slate-100">
-                    {tmpl.subTasks.map((st, sidx) => (
-                      <div key={sidx} className="flex items-center justify-between text-[9px] text-slate-500">
-                        <span className="truncate">
-                          <strong className="text-cyan-600 font-mono mr-1">{sidx + 1}</strong>
-                          {st.title}
-                        </span>
-                        <span className="text-slate-400 font-mono ml-1.5 flex-shrink-0">{st.duration}分钟</span>
-                      </div>
-                    ))}
-                  </div>
+                  {tmpl.subTasks && tmpl.subTasks.length > 0 && (
+                    <div className="mt-2 space-y-1 bg-slate-50 p-2 rounded-lg border border-slate-100">
+                      {tmpl.subTasks.map((st, sidx) => (
+                        <div key={sidx} className="flex items-center justify-between text-[9px] text-slate-500">
+                          <span className="truncate">
+                            <strong className="text-cyan-600 font-mono mr-1">{sidx + 1}</strong>
+                            {st.title}
+                          </span>
+                          <span className="text-slate-400 font-mono ml-1.5 flex-shrink-0">{st.duration}分钟</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
