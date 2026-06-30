@@ -108,11 +108,11 @@ export const INITIAL_REWARDS: RewardItem[] = [
   // Wish store rewards (Require Gold Coins / 心愿币)
   {
     id: 'wish-tablet',
-    name: '玩平板 15分钟',
+    name: '玩手机 15分钟',
     cost: 150,
-    icon: 'Tablet',
+    icon: 'Smartphone',
     category: 'wish',
-    description: '使用平板看视频或浏览内容，每次消耗150心愿币。',
+    description: '使用手机看视频或浏览内容，每次消耗150心愿币。',
     rewardType: 'screen',
     duration: 15
   },
@@ -129,7 +129,7 @@ export const INITIAL_REWARDS: RewardItem[] = [
   {
     id: 'wish-tv',
     name: '看电视 30分钟',
-    cost: 200,
+    cost: 260,
     icon: 'Tv',
     category: 'wish',
     description: '大屏观影体验，用于看动漫或少儿纪录片。',
