@@ -1243,18 +1243,18 @@ export default function App() {
             
             <p className="text-xs text-slate-400 leading-relaxed mt-3 px-2">
               你累计攻破重重战术挑战，表现极度优秀，成功晋升为 <strong>Lv. {operator.level} 特工上将</strong>！
-              军需库已发放 <strong>100枚 心愿金币</strong> 并解锁更高阶迷彩装备购买权！
+              军需库已发放 <strong>1枚 心愿币</strong> 并解锁更高阶迷彩装备购买权！
             </p>
 
             <button
               onClick={() => {
-                setOperator(prev => ({ ...prev, goldCoins: prev.goldCoins + 100 }));
+                setOperator(prev => ({ ...prev, goldCoins: prev.goldCoins + 1 }));
                 setShowLevelUpModal(false);
-                triggerToast("🎁 已领取晋升奖励 100金币！");
+                triggerToast("🎁 已领取晋升奖励 1心愿币！");
               }}
               className="w-full mt-6 py-3 px-4 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-slate-950 font-black text-xs rounded-xl shadow-lg transition-all font-mono"
             >
-              领取战级晋升军饷 (+100金币)
+              领取战级晋升军饷 (+1心愿币)
             </button>
           </motion.div>
         </div>
