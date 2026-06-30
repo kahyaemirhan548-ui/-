@@ -5,7 +5,7 @@ import {
   BarChart, Bar, PieChart, Pie, Cell, Legend 
 } from 'recharts';
 import { TrendingUp, Clock, CheckCircle2, Award, AlertTriangle, HelpCircle } from 'lucide-react';
-import { getFormattedDate } from '../data';
+import { getFormattedDate, getDynamicWeekDays } from '../data';
 
 interface ReportProps {
   tasks: Task[];
@@ -64,16 +64,13 @@ export default function Report({ tasks }: ReportProps) {
   ];
 
   // 3. Daily Study Duration Trend Area Chart Data
-  // Group tasks by day (Wed July 1 to Tue July 7, matching weekly plan calendar)
-  const daysMap = [
-    { label: '周三 (7/1)', dateStr: getFormattedDate(0), minutes: 0, tasks: 0 },
-    { label: '周四 (7/2)', dateStr: getFormattedDate(1), minutes: 0, tasks: 0 },
-    { label: '周五 (7/3)', dateStr: getFormattedDate(2), minutes: 0, tasks: 0 },
-    { label: '周六 (7/4)', dateStr: getFormattedDate(3), minutes: 0, tasks: 0 },
-    { label: '周日 (7/5)', dateStr: getFormattedDate(4), minutes: 0, tasks: 0 },
-    { label: '周一 (7/6)', dateStr: getFormattedDate(5), minutes: 0, tasks: 0 },
-    { label: '周二 (7/7)', dateStr: getFormattedDate(6), minutes: 0, tasks: 0 },
-  ];
+  // Group tasks by day (dynamic Wednesday-to-Tuesday week, matching weekly plan calendar)
+  const daysMap = getDynamicWeekDays().map(day => ({
+    label: `${day.name} (${day.label})`,
+    dateStr: day.date,
+    minutes: 0,
+    tasks: 0
+  }));
 
   // Override with actual state if tasks are completed
   daysMap.forEach(day => {

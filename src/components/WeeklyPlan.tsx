@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Task, SubjectType, PriorityType, DifficultyType } from '../types';
-import { TASK_TEMPLATES, getFormattedDate } from '../data';
+import { TASK_TEMPLATES, getFormattedDate, getDynamicWeekDays } from '../data';
 import { 
   Calendar, Plus, CheckCircle, Circle, Tag, Sparkles, 
   PlusCircle, ChevronLeft, ChevronRight, Compass, Trash2, Edit2, Save, X 
@@ -15,13 +15,14 @@ interface WeeklyPlanProps {
 }
 
 export default function WeeklyPlan({ tasks, onAddTask, onToggleComplete, onDeleteTask, onEditTask }: WeeklyPlanProps) {
-  // Local state for the selected date (YYYY-MM-DD), default to today (2026-07-01)
+  // Local state for the selected date (YYYY-MM-DD), default to today
   const [selectedDate, setSelectedDate] = useState<string>(getFormattedDate(0));
   const [showAddForm, setShowAddForm] = useState(false);
   
-  // Local state for the calendar panel navigation (July 2026)
-  const [calYear, setCalYear] = useState(2026);
-  const [calMonth, setCalMonth] = useState(6); // 6 is July (0-indexed)
+  // Local state for the calendar panel navigation (dynamic current month/year)
+  const todayObj = new Date();
+  const [calYear, setCalYear] = useState(todayObj.getFullYear());
+  const [calMonth, setCalMonth] = useState(todayObj.getMonth()); // 0-indexed month
   
   // New task form fields
   const [title, setTitle] = useState('');
@@ -88,16 +89,8 @@ export default function WeeklyPlan({ tasks, onAddTask, onToggleComplete, onDelet
   const selMonth0 = selMonth1 - 1; // 0-indexed month
   const maxDaysInSelMonth = new Date(selYear, selMonth1, 0).getDate();
 
-  // 7 Days of the current week (Wed July 1 to Tue July 7, 2026)
-  const daysOfWeek = [
-    { name: '周三', label: '7/1', date: getFormattedDate(0) },
-    { name: '周四', label: '7/2', date: getFormattedDate(1) },
-    { name: '周五', label: '7/3', date: getFormattedDate(2) },
-    { name: '周六', label: '7/4', date: getFormattedDate(3) },
-    { name: '周日', label: '7/5', date: getFormattedDate(4) },
-    { name: '周一', label: '7/6', date: getFormattedDate(5) },
-    { name: '周二', label: '7/7', date: getFormattedDate(6) }
-  ];
+  // Dynamically generated Wednesday-to-Tuesday current week
+  const daysOfWeek = getDynamicWeekDays();
 
   // Helper to dynamically get Chinese day names for custom select date
   const getChineseDayName = (dateStr: string) => {
@@ -268,7 +261,7 @@ export default function WeeklyPlan({ tasks, onAddTask, onToggleComplete, onDelet
             <h2 className="text-sm font-bold text-slate-200">特工战术周视图计划 (快捷导航)</h2>
           </div>
           <span className="text-xs font-mono text-cyan-400 bg-cyan-950/40 border border-cyan-800/40 px-3 py-1 rounded-full font-bold">
-            July 2026 Baseline
+            {daysOfWeek[0]?.label} - {daysOfWeek[6]?.label} 战役
           </span>
         </div>
 
@@ -279,7 +272,7 @@ export default function WeeklyPlan({ tasks, onAddTask, onToggleComplete, onDelet
             const total = dayTasks.length;
             const completed = dayTasks.filter(t => t.isCompleted).length;
             const isSelected = selectedDate === day.date;
-            const isToday = day.date === '2026-07-01'; // baseline today
+            const isToday = day.date === getFormattedDate(0); // dynamic today
 
             return (
               <button
@@ -288,11 +281,6 @@ export default function WeeklyPlan({ tasks, onAddTask, onToggleComplete, onDelet
                 onClick={() => {
                   setSelectedDate(day.date);
                   setShowAddForm(false);
-                  
-                  // Keep calendar panel synchronized
-                  const d = new Date(day.date);
-                  setCalYear(d.getFullYear());
-                  setCalMonth(d.getMonth());
                 }}
                 className={`relative flex flex-col items-center p-2.5 rounded-xl border transition-all duration-300
                   ${isSelected 
@@ -768,7 +756,7 @@ export default function WeeklyPlan({ tasks, onAddTask, onToggleComplete, onDelet
                     <ChevronLeft className="w-3.5 h-3.5" />
                   </button>
                   <span className="text-[10px] font-mono font-bold text-slate-400 px-1">
-                    {selYear}年{selMonth1}月
+                    {calYear}年{calMonth + 1}月
                   </span>
                   <button
                     type="button"
@@ -796,6 +784,11 @@ export default function WeeklyPlan({ tasks, onAddTask, onToggleComplete, onDelet
             {/* Days cells layout */}
             <div className="grid grid-cols-7 gap-1 text-center">
               {calendarCells.map((cell, cidx) => {
+                if (!cell.isCurrentMonth) {
+                  return (
+                    <div key={cidx} className="h-9" />
+                  );
+                }
                 const cellDateStr = `${cell.year}-${String(cell.month + 1).padStart(2, '0')}-${String(cell.day).padStart(2, '0')}`;
                 const isSelected = selectedDate === cellDateStr;
                 const isToday = cellDateStr === '2026-07-01'; // system baseline date
@@ -814,9 +807,7 @@ export default function WeeklyPlan({ tasks, onAddTask, onToggleComplete, onDelet
                       if (cell.month !== calMonth) setCalMonth(cell.month);
                     }}
                     className={`relative flex flex-col items-center justify-center p-1 h-9 rounded-lg transition-all border text-xs font-bold
-                      ${!cell.isCurrentMonth 
-                        ? 'text-slate-300 bg-slate-50/20 border-transparent hover:bg-slate-50' 
-                        : isSelected
+                      ${isSelected
                         ? 'bg-gradient-to-b from-cyan-500 to-indigo-600 text-white border-cyan-500 shadow-md scale-102 z-10'
                         : isToday
                         ? 'bg-blue-50 text-blue-900 border-blue-200 hover:bg-blue-100 hover:border-blue-300'

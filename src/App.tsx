@@ -325,17 +325,15 @@ export default function App() {
 
     setTasks(updatedTasks);
 
-    // 2. Award standard focus points + experience
+    // 2. Award experience (no extra coins, strictly based on task setting)
     const focusXpReward = minutesFocused * 3; // 3 EXP per focus minute
-    const focusGoldReward = Math.ceil(minutesFocused * 0.5); // gold coins for persistence
-    const focusTacReward = Math.ceil(minutesFocused * 0.2); // tactical coins
 
-    // Bonus for total completion
-    let totalGold = focusGoldReward;
-    let totalTac = focusTacReward;
+    // No extra gold or tactical coins based on minutes, only award actual configured rewards when task is fully completed
+    let totalGold = 0;
+    let totalTac = 0;
     if (isTaskNowFinished) {
-      totalGold += task.coinsReward;
-      totalTac += task.tacticalCoinsReward;
+      totalGold = task.coinsReward;
+      totalTac = task.tacticalCoinsReward;
     }
 
     setOperator(prev => {
@@ -363,7 +361,11 @@ export default function App() {
       updateAchievementsProgress('endurance', minutesFocused);
     }
 
-    triggerToast(`🏆 专注胜利！达成专注 ${minutesFocused} 分钟。获得 🪙+${totalGold} 心愿币，🔋+${totalTac} 战术币！`);
+    if (isTaskNowFinished) {
+      triggerToast(`🏆 专注胜利！达成专注 ${minutesFocused} 分钟，成功通关并获得任务奖励：🪙+${totalGold} 心愿币，🔋+${totalTac} 战术币！`);
+    } else {
+      triggerToast(`🏆 专注训练！成功达成专注 ${minutesFocused} 分钟，获得 +${focusXpReward} EXP 经验值！（主任务通关时可获得设定金币奖励）`);
+    }
   };
 
   // Helper to dynamically update achievement counts

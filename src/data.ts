@@ -1,5 +1,11 @@
 import { Task, RewardItem, SkinItem, Achievement, OperatorProfile } from './types';
 
+export interface WeekDay {
+  name: string;
+  label: string;
+  date: string;
+}
+
 // Utility helper to format date strings relative to today
 export const getFormattedDate = (offsetDays: number = 0): string => {
   const date = new Date();
@@ -8,6 +14,40 @@ export const getFormattedDate = (offsetDays: number = 0): string => {
   const month = String(date.getMonth() + 1).padStart(2, '0');
   const day = String(date.getDate()).padStart(2, '0');
   return `${year}-${month}-${day}`;
+};
+
+// Generates the current Wednesday-to-Tuesday week dynamically
+export const getDynamicWeekDays = (): WeekDay[] => {
+  const today = new Date();
+  const dayIndex = today.getDay(); // 0 (Sun) to 6 (Sat)
+  // Calculate how many days since Wednesday (Wednesday is 3)
+  const daysSinceWednesday = (dayIndex - 3 + 7) % 7;
+  
+  const startWednesday = new Date(today);
+  startWednesday.setDate(today.getDate() - daysSinceWednesday);
+  
+  const weekDays: WeekDay[] = [];
+  const dayNames = ['周三', '周四', '周五', '周六', '周日', '周一', '周二'];
+  
+  for (let i = 0; i < 7; i++) {
+    const current = new Date(startWednesday);
+    current.setDate(startWednesday.getDate() + i);
+    
+    const year = current.getFullYear();
+    const month = current.getMonth() + 1;
+    const dateNum = current.getDate();
+    
+    const formattedMonth = String(month).padStart(2, '0');
+    const formattedDateNum = String(dateNum).padStart(2, '0');
+    
+    weekDays.push({
+      name: dayNames[i],
+      label: `${month}/${dateNum}`,
+      date: `${year}-${formattedMonth}-${formattedDateNum}`
+    });
+  }
+  
+  return weekDays;
 };
 
 export const INITIAL_OPERATOR: OperatorProfile = {
