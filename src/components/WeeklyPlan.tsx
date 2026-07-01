@@ -63,9 +63,9 @@ export default function WeeklyPlan({ tasks, onAddTask, onToggleComplete, onDelet
     let goldRewards = editCoinsReward;
     let tacRewards = editTacticalCoinsReward;
     if (editDifficulty !== original.difficulty) {
-      if (editDifficulty === '困难') { goldRewards = 30; tacRewards = 12; }
-      else if (editDifficulty === '中等') { goldRewards = 20; tacRewards = 8; }
-      else { goldRewards = 15; tacRewards = 5; }
+      if (editDifficulty === '困难') { goldRewards = 10; tacRewards = 5; }
+      else if (editDifficulty === '中等') { goldRewards = 7; tacRewards = 3; }
+      else { goldRewards = 5; tacRewards = 2; }
     }
 
     const updated: Task = {
@@ -112,10 +112,10 @@ export default function WeeklyPlan({ tasks, onAddTask, onToggleComplete, onDelet
     if (!title.trim()) return;
 
     // Default calculations for coins payouts
-    let goldRewards = 15;
-    let tacRewards = 5;
-    if (difficulty === '困难') { goldRewards = 30; tacRewards = 12; }
-    else if (difficulty === '中等') { goldRewards = 20; tacRewards = 8; }
+    let goldRewards = 5;
+    let tacRewards = 2;
+    if (difficulty === '困难') { goldRewards = 10; tacRewards = 5; }
+    else if (difficulty === '中等') { goldRewards = 7; tacRewards = 3; }
 
     onAddTask({
       title,
@@ -140,10 +140,10 @@ export default function WeeklyPlan({ tasks, onAddTask, onToggleComplete, onDelet
   };
 
   const handleAddTemplate = (template: typeof TASK_TEMPLATES[0]) => {
-    let goldRewards = 15;
-    let tacRewards = 5;
-    if (template.difficulty === '困难') { goldRewards = 30; tacRewards = 12; }
-    else if (template.difficulty === '中等') { goldRewards = 20; tacRewards = 8; }
+    let goldRewards = 5;
+    let tacRewards = 2;
+    if (template.difficulty === '困难') { goldRewards = 10; tacRewards = 5; }
+    else if (template.difficulty === '中等') { goldRewards = 7; tacRewards = 3; }
 
     onAddTask({
       title: template.title,
